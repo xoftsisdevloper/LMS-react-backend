@@ -1,0 +1,38 @@
+********************************************************************************************************************************************
+
+													React Web and Mobile app 
+
+********************************************************************************************************************************************
+
+Git logins:
+------------
+username : Abutalib2002
+password : abutalib07022002
+
+
+Repositories:
+---------------
+
+Backend:-
+https://github.com/Abutalib2002/react-backend-data-api
+
+WebApp:-
+https://github.com/Abutalib2002/react-mobile-lms-app
+
+Mobile App:-
+https://github.com/Abutalib2002/react-lms-app
+
+
+Languages:-
+
+React - 
+Node -
+React Native -
+Express -
+
+
+Requeirments:-
+
+
+
+
