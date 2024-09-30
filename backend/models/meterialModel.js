@@ -1,11 +1,31 @@
-import mongoose from "mongoose"
+import mongoose from 'mongoose';
 
-const MaterialSchema = new mongoose.Schema({
-    title: { type: String, required: true },
-    content: { type: String, required: true },
-    accessibleByGroups: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Group' }],
-})
+const materialSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    content_type: {
+      type: String,
+      enum: ['PDF', 'Video', 'Document', 'Image'],
+      required: true,
+    },
+    subject_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Subject',
+      required: true,
+    },
+    content_url: {
+      type: String,
+      required: false,
+    },
+  },
+  { timestamps: true }
+);
 
-const Material = mongoose.model("Material", MaterialSchema)
-
-export default Material
+export default mongoose.model('Material', materialSchema);

@@ -1,0 +1,89 @@
+{
+    "clientName": "Thunder Client",
+    "collectionName": "LMS",
+    "collectionId": "f156e4c6-02da-403a-a8ae-ba8ac6f00a4a",
+    "dateExported": "2024-09-26T07:56:55.489Z",
+    "version": "1.2",
+    "folders": [],
+    "requests": [
+        {
+            "_id": "21c0a8ff-77e5-4996-b7ac-dff301a011bc",
+            "colId": "f156e4c6-02da-403a-a8ae-ba8ac6f00a4a",
+            "containerId": "",
+            "name": "test_post_signup",
+            "url": "http://localhost:2000/users/sign_up",
+            "method": "POST",
+            "sortNum": 10000,
+            "created": "2024-09-26T07:54:47.568Z",
+            "modified": "2024-09-26T07:54:47.568Z",
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"username\": \"xtjrjytd\",\n  \"password\": \"singam@123\",\n  \"confirmPassword\": \"singam@123\",\n  \"isAdmin\": true\n}",
+                "form": []
+            }
+        },
+        {
+            "_id": "a6f2d313-2ef7-4da7-858b-f5c15d99710a",
+            "colId": "f156e4c6-02da-403a-a8ae-ba8ac6f00a4a",
+            "containerId": "",
+            "name": "test_post_signIn",
+            "url": "http://localhost:2000/users/sign_in",
+            "method": "POST",
+            "sortNum": 20000,
+            "created": "2024-09-26T07:55:34.767Z",
+            "modified": "2024-09-26T07:55:34.767Z",
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"username\": \"xtjrjytd\",\n  \"password\": \"singam@123\",\n  \"confirmPassword\": \"singam@123\",\n  \"isAdmin\": true\n}",
+                "form": []
+            }
+        },
+        {
+            "_id": "66c08066-fc64-4177-a3e5-236fe49fc5b9",
+            "colId": "f156e4c6-02da-403a-a8ae-ba8ac6f00a4a",
+            "containerId": "",
+            "name": "test_post_sign_out",
+            "url": "http://localhost:2000/users/sign_out",
+            "method": "POST",
+            "sortNum": 30000,
+            "created": "2024-09-26T07:55:50.513Z",
+            "modified": "2024-09-26T07:55:50.513Z",
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"username\": \"asdasds\",\n  \"password\": \"singam@123\",\n  \"confirmPassword\": \"singam@123\"\n}",
+                "form": []
+            }
+        },
+        {
+            "_id": "15a9256b-dbc8-4d8a-8920-4360927abe3c",
+            "colId": "f156e4c6-02da-403a-a8ae-ba8ac6f00a4a",
+            "containerId": "",
+            "name": "test_get_users",
+            "url": "http://localhost:2000/users",
+            "method": "GET",
+            "sortNum": 40000,
+            "created": "2024-09-26T07:56:31.011Z",
+            "modified": "2024-09-26T07:56:31.011Z",
+            "headers": []
+        }
+    ],
+    "ref": "daRLO76cdbJNfNZfpSG1K6l9sC4JdPuCoR2w9h3GSHCn7EtyOycsKt5udtyWuByKSCpnA_lp_uvhE1KmjljHbA"
+}

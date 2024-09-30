@@ -1,8 +1,33 @@
-import mongoose from "mongoose"
+import mongoose from 'mongoose';
 
-const SubjectSchema = new mongoose.Schema({
-    title: { type: String, required: true },
-    materials: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Material' }],
-})
-  
-export default mongoose.model('Subject', SubjectSchema)
+const subjectSchema = new mongoose.Schema({
+    name: { 
+        type: String, 
+        required: true 
+    },
+    description: { 
+        type: String, 
+        required: true 
+    },
+    course_id: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Course', 
+        required: true 
+    },
+    material_ids: [{ 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Material' 
+    }],
+    duration: { 
+        type: Number, 
+        required: true 
+    },
+    status: { 
+        type: String, 
+        enum: ['active', 'inactive'],
+        default: 'active'
+    }
+}, { timestamps: true });
+
+const Subject = mongoose.model('Subject', subjectSchema);
+export default Subject;

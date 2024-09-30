@@ -20,7 +20,7 @@ const authenticate = async (req, res, next) => {
     }
     
     req.user = user
-
+    console.log("iam User:", user)
     next()
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error })
