@@ -8,4 +8,4 @@ node_modules/
 logs
 *.log
 npm-debug.log*
-thunder-collection_LMS
+thunder-collection_LMS.json
