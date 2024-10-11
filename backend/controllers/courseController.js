@@ -55,7 +55,7 @@ export const deleteCourse = async (req, res) => {
 // Get details of a specific course
 export const getCourseDetails = async (req, res) => {
   try {
-    const course = await Course.findById(req.params.id);
+    const course = await Course.findById(req.params.id).populate('subject_ids');
     if (!course) {
       return res.status(404).json({ message: 'Course not found' });
     }
