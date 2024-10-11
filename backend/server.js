@@ -31,20 +31,20 @@ app.get('*', (req, res) => {
 })
 
 // Log all routes
-// app._router.stack.forEach((middleware) => {
-//   if (middleware.route) {
-//       // If the middleware is a route
-//       console.log(`${Object.keys(middleware.route.methods).join(', ').toUpperCase()} ${middleware.route.path}`);
-//   } else if (middleware.name === 'router') {
-//       // If the middleware is a router
-//       middleware.handle.stack.forEach((handler) => {
-//           const route = handler.route;
-//           if (route) {
-//               console.log(`${Object.keys(route.methods).join(', ').toUpperCase()} ${route.path}`);
-//           }
-//       });
-//   }
-// });
+app._router.stack.forEach((middleware) => {
+  if (middleware.route) {
+      // If the middleware is a route
+      console.log(`${Object.keys(middleware.route.methods).join(', ').toUpperCase()} ${middleware.route.path}`);
+  } else if (middleware.name === 'router') {
+      // If the middleware is a router
+      middleware.handle.stack.forEach((handler) => {
+          const route = handler.route;
+          if (route) {
+              console.log(`${Object.keys(route.methods).join(', ').toUpperCase()} ${route.path}`);
+          }
+      });
+  }
+});
 
 
 app.listen(PORT,() => {

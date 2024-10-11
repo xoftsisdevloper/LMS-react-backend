@@ -193,7 +193,8 @@ export const userCourses = async (req, res) => {
 
 export const assignGroupsToUser = async (req, res) => {
     try {
-        const { userId, groupIds } = req.body;
+        const { userId } = req.params;
+        const { groupIds } = req.body;
 
         // Validate inputs
         if (!userId || !Array.isArray(groupIds)) {

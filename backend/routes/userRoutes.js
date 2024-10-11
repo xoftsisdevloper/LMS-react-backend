@@ -1,6 +1,7 @@
 import express, { Router } from 'express'
 import {assignGroupsToUser, destroyAll, destroyByUserNameOrId, getUserGroups, getUsers, removeGroupsFromUser, saveUsers, signInUser, signOutUser, signUpUser, updateUser, userCourses} from '../controllers/usersController.js'
 import authenticate from '../middleware/authenticate.js'
+import { getUserCourses } from '../controllers/userCoursesController.js'
 
 const router = express.Router()
 
@@ -24,10 +25,12 @@ router.get('/:id/courses', userCourses)
 
 router.post('/remove-groups', removeGroupsFromUser);
 
-router.post('/assign-groups', assignGroupsToUser);
+router.post('/:userId/groups/assign', assignGroupsToUser);
 
 router.put('/:id', updateUser);
 
 router.get('/:id/groups', getUserGroups);
+
+router.get('/:userId/courses', getUserCourses)
 
 export default router
