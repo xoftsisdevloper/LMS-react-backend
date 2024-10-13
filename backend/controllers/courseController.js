@@ -8,7 +8,7 @@ export const getAllCourses = async (req, res) => {
       path: 'subjects',
       populate: {
         path: 'materials',
-        model: 'Material' // Ensure this matches your material model name
+        model: 'Material'
       }
     });
     res.status(200).json(courses);
@@ -61,7 +61,13 @@ export const deleteCourse = async (req, res) => {
 // Get details of a specific course
 export const getCourseDetails = async (req, res) => {
   try {
-    const course = await Course.findById(req.params.id).populate('subjects');
+    const course = await Course.findById(req.params.id).populate({
+      path: 'subjects',
+      populate: {
+        path: 'materials',
+        model: 'Material'
+      }
+    });
     if (!course) {
       return res.status(404).json({ message: 'Course not found' });
     }
