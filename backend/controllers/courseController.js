@@ -1,5 +1,8 @@
 // controllers/courseController.js
+import mongoose from 'mongoose';
 import Course from '../models/courseModel.js';
+import Material from '../models/meterialModel.js';
+import Subject from '../models/subjectModel.js';
 
 // Get all courses
 export const getAllCourses = async (req, res) => {
@@ -46,17 +49,45 @@ export const updateCourse = async (req, res) => {
 
 // Delete a course
 export const deleteCourse = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction(); // Start a transaction to ensure atomicity
+
   try {
-    const course = await Course.findByIdAndDelete(req.params.id);
+    // Step 1: Find the course and associated subjects
+    const course = await Course.findById(req.params.id).populate('subjects').session(session);
+
     if (!course) {
       return res.status(404).json({ error: 'Course not found' });
     }
-    res.status(204).send();
+
+    // Step 2: Extract subject IDs from the course
+    const subjectIds = course.subjects.map(subject => subject._id);
+
+    // Step 3: Delete associated materials for each subject
+    await Material.deleteMany({ subject_id: { $in: subjectIds } }).session(session);
+
+    // Step 4: Delete associated subjects
+    await Subject.deleteMany({ _id: { $in: subjectIds } }).session(session);
+
+    // Step 5: Delete the course itself
+    await Course.findByIdAndDelete(req.params.id).session(session);
+
+    // Commit the transaction if everything is successful
+    await session.commitTransaction();
+    session.endSession();
+
+    res.status(204).send(); // Successfully deleted, no content to return
+
   } catch (error) {
+    // Abort the transaction in case of failure
+    await session.abortTransaction();
+    session.endSession();
+
     console.error(error);
     res.status(500).json({ error: 'Error deleting course', details: error.message });
   }
 };
+
 
 // Get details of a specific course
 export const getCourseDetails = async (req, res) => {
