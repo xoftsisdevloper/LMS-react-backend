@@ -14,7 +14,7 @@ const subjectSchema = new mongoose.Schema({
         ref: 'Course', 
         required: true 
     },
-    material_ids: [{ 
+    materials: [{ 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Material' 
     }],

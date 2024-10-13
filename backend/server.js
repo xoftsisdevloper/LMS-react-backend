@@ -9,6 +9,8 @@ import MaterialRoutes from './routes/materialsRoutes.js'
 import GroupRoutes from './routes/groupsRoutes.js'
 import CoursesRoutes from  './routes/coursesRoutes.js'
 import SubjectRoutes from './routes/subjectsRoutes.js'
+import CreateFullCourse from './routes/createFullCourse.js'
+import UpdateFullCourse from './routes/updateFullCourse.js'
 import authenticate from './middleware/authenticate.js'
 
 const app = express()
@@ -22,7 +24,7 @@ const PORT = process.env.PORT || 5000
 // app.use('/groups', authenticate, GroupRoutes)
 app.use('/api/users', authRoutes)
 app.use('/api/groups', authenticate, GroupRoutes)
-app.use('/api/courses', CoursesRoutes)
+app.use('/api/courses', CoursesRoutes, UpdateFullCourse, CreateFullCourse)
 app.use('/api/subjects', SubjectRoutes)
 app.use('/api/materials', MaterialRoutes)
 

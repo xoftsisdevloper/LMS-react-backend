@@ -33,7 +33,7 @@ const courseSchema = new mongoose.Schema({
         enum: ['active', 'inactive'],
         default: 'active'
     },
-    subject_ids: [{ 
+    subjects: [{
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Subject' 
     }],

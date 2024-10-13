@@ -4,7 +4,13 @@ import Course from '../models/courseModel.js';
 // Get all courses
 export const getAllCourses = async (req, res) => {
   try {
-    const courses = await Course.find().populate('subject_ids');
+    const courses = await Course.find().populate({
+      path: 'subjects',
+      populate: {
+        path: 'materials',
+        model: 'Material' // Ensure this matches your material model name
+      }
+    });
     res.status(200).json(courses);
   } catch (error) {
     console.error(error);
@@ -55,7 +61,7 @@ export const deleteCourse = async (req, res) => {
 // Get details of a specific course
 export const getCourseDetails = async (req, res) => {
   try {
-    const course = await Course.findById(req.params.id).populate('subject_ids');
+    const course = await Course.findById(req.params.id).populate('subjects');
     if (!course) {
       return res.status(404).json({ message: 'Course not found' });
     }

@@ -10,7 +10,7 @@ export const getUserCourses = async (req, res) => {
       populate: {
         path: 'course_ids',
         populate: {
-          path: 'subject_ids', // Ensure this is correctly referencing the Subject model
+          path: 'subjects', // Ensure this is correctly referencing the Subject model
         }
       }
     }).exec();
