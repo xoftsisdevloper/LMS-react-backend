@@ -23,7 +23,7 @@ const PORT = process.env.PORT || 5000
 // app.use('/materials', authenticate, MaterialRoutes)
 // app.use('/groups', authenticate, GroupRoutes)
 app.use('/api/users', authRoutes)
-app.use('/api/groups', authenticate, GroupRoutes)
+app.use('/api/groups', GroupRoutes)
 app.use('/api/courses', CoursesRoutes, UpdateFullCourse, CreateFullCourse)
 app.use('/api/subjects', SubjectRoutes)
 app.use('/api/materials', MaterialRoutes)

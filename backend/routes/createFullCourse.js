@@ -6,24 +6,23 @@ import Material from '../models/meterialModel.js';
 
 const router = express.Router();
 
-// API endpoint to create a course with subjects and materials in a single transaction
 router.post('/create-course', async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
-    const courseData = req.body;  // Extract courseData directly from the request body
+    const courseData = req.body; 
 
-    // Step 1: Validation
-    if (!courseData.name || !courseData.description || !courseData.duration) {
-      return res.status(400).json({ message: 'Course name, description, and duration are required.' });
+  
+    if (!courseData.name || !courseData.description || !courseData.duration || !courseData.imageUrl) {
+      return res.status(400).json({ message: 'Course name, description, duration, and image URL are required.' });
     }
 
     if (!Array.isArray(courseData.subjects) || courseData.subjects.length === 0) {
       return res.status(400).json({ message: 'At least one subject is required.' });
     }
 
-    // Validate each subject and its materials
+  
     for (const subject of courseData.subjects) {
       if (!subject.name || !subject.description || !subject.duration) {
         return res.status(400).json({ message: 'Each subject must have a name, description, and duration.' });
@@ -40,17 +39,18 @@ router.post('/create-course', async (req, res) => {
       }
     }
 
-    // Step 2: Create the course
+  
     const newCourse = new Course({
       name: courseData.name,
       description: courseData.description,
       duration: courseData.duration,
-      subjects: [], // Will populate after subjects creation
+      imageUrl: courseData.imageUrl, 
+      subjects: [],
     });
 
     await newCourse.save({ session });
 
-    // Step 3: Create each subject and its materials
+  
     for (let subjectData of courseData.subjects) {
       const materialIds = [];
 
@@ -59,31 +59,31 @@ router.post('/create-course', async (req, res) => {
           name: materialData.name,
           description: materialData.description,
           content_type: materialData.content_type,
-          subject_id: newCourse._id, // Temporary assignment, will update later
+          subject_id: newCourse._id,
           content_url: materialData.content_url,
         });
 
         await newMaterial.save({ session });
-        materialIds.push(newMaterial._id); // Collect material ids
+        materialIds.push(newMaterial._id);
       }
 
-      // Create the subject with associated materials
+    
       const newSubject = new Subject({
         name: subjectData.name,
         description: subjectData.description,
         course_id: newCourse._id,
-        materials: materialIds, // Attach the materials
+        materials: materialIds,
         duration: subjectData.duration,
       });
 
       await newSubject.save({ session });
-      newCourse.subjects.push(newSubject._id); // Add subject to course
+      newCourse.subjects.push(newSubject._id);
     }
 
-    // Save the updated course with subjects
+  
     await newCourse.save({ session });
 
-    // Commit the transaction
+  
     await session.commitTransaction();
     session.endSession();
 
@@ -93,14 +93,14 @@ router.post('/create-course', async (req, res) => {
     });
 
   } catch (error) {
-    // Rollback the transaction in case of failure
+  
     await session.abortTransaction();
     session.endSession();
 
-    // Log the error details
+  
     console.error('Error creating course:', error);
     
-    // Handle Mongoose validation errors
+  
     if (error instanceof mongoose.Error.ValidationError) {
       return res.status(400).json({ message: 'Validation Error', errors: error.errors });
     }

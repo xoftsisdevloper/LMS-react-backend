@@ -21,7 +21,7 @@ export const getUserCourses = async (req, res) => {
     }
 
     // Log user data for debugging
-    console.log(JSON.stringify(user, null, 2)); // Check the structure here
+    console.log(JSON.stringify(user, null, 2, "singam")); // Check the structure here
 
     // Extract courses from populated data
     const userCourses = user.groups.flatMap(group => group.course_ids);

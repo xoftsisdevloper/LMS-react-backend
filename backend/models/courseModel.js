@@ -33,6 +33,9 @@ const courseSchema = new mongoose.Schema({
         enum: ['active', 'inactive'],
         default: 'active'
     },
+    imageUrl: {
+        type: String
+    },
     subjects: [{
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Subject' 

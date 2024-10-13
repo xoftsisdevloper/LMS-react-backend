@@ -17,13 +17,20 @@ const groupSchema = new mongoose.Schema({
         enum: ['active', 'inactive'],
         default: 'active'
     },
-    course_ids: [
+    courses: [
         {
           type: mongoose.Schema.Types.ObjectId,
-          ref: 'Course', // Reference the Course model
+          ref: 'Course',
           default: [],
         }
     ],
+    users: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User',
+          default: [],
+        }
+    ]
 }, { timestamps: true });
 
 export default mongoose.model("Group", groupSchema);
