@@ -129,9 +129,9 @@ export const submitUserRating = async (req, res) => {
 
     await course.save();
 
-    res.status(201).json({ message: 'Rating submitted successfully' });
+    return res.status(201).json({ message: 'Rating submitted successfully' });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message, error });
   }
 }
 

@@ -1,6 +1,7 @@
 import express from 'express';
 import { getAllCourses, createCourse, updateCourse, deleteCourse, getCourseDetails, submitUserRating, getRating, updateCourseProgress, getCourseProgress } from '../controllers/courseController.js';
 import validateCourseCreation from '../middleware/validateCourse.js';
+import authenticate from '../middleware/authenticate.js';
 
 const router = express.Router();
 
@@ -18,7 +19,7 @@ router.delete('/:id', deleteCourse);
 
 router.get('/:id', getCourseDetails);
 
-router.post('/:id/rate', submitUserRating);
+router.post('/:id/rate', authenticate, submitUserRating);
 
 router.get('/:id/ratings', getRating);
 
