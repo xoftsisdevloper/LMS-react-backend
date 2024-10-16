@@ -17,8 +17,7 @@ const materialSchema = new mongoose.Schema(
     },
     subject_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Subject',
-      required: true,
+      ref: 'Subject'
     },
     content_url: {
       type: String,
