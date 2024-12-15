@@ -1,5 +1,5 @@
 import express, { Router } from 'express'
-import {assignGroupsToUser, destroyAll, destroyByUserNameOrId, getUserGroups, getUsers, removeGroupsFromUser, saveUsers, signInUser, signOutUser, signUpUser, updateUser, userCourses} from '../controllers/usersController.js'
+import {assignGroupsToUser, destroyAll, destroyByUserNameOrId, getUser, getUserGroups, getUsers, removeGroupsFromUser, saveUsers, signInUser, signOutUser, signUpUser, updateUser, userCourses} from '../controllers/usersController.js'
 import authenticate from '../middleware/authenticate.js'
 import { getUserCourses } from '../controllers/userCoursesController.js'
 
@@ -16,6 +16,8 @@ router.post('/sign_out', signOutUser)
 
 // get users
 router.get('/', authenticate, getUsers)
+
+router.get('/:id', getUser);
 
 router.get('/destroy_all', destroyAll)
 

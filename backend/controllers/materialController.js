@@ -1,5 +1,6 @@
 // controllers/materialController.js
 import Material from '../models/meterialModel.js'; // Ensure the import path is correct
+import Subject from '../models/subjectModel.js';
 
 // Get all materials
 export const getAllMaterials = async (req, res) => {
@@ -64,16 +65,31 @@ export const deleteMaterial = async (req, res) => {
 export const getMaterialsForSubject = async (req, res) => {
   try {
     // Find the subject by its ID and populate the materials field
-    const subject = await Subject.findById(req.params.id).populate('material_ids');
-    
+    const subject = await Subject.findById(req.params.id).populate('materials');
     if (!subject) {
       return res.status(404).json({ message: 'Subject not found' });
     }
 
     // Return the materials for the subject
-    res.status(200).json(subject.materials);
+    res.status(200).json({ subject, materials: subject.materials });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error fetching materials for subject', details: error.message });
+  }
+};
+
+export const getMaterialsById = async (req, res) => {
+  try {
+    // Find the subject by its ID and populate the materials field
+    const material = await Material.findById(req.params.id);
+    if (!material) {
+      return res.status(404).json({ message: 'Material not found' });
+    }
+
+    // Return the materials for the subject
+    res.status(200).json(material);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error fetching material', details: error.message });
   }
 };

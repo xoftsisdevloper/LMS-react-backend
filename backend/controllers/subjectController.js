@@ -4,7 +4,7 @@ import Subject from '../models/subjectModel.js';
 // Get all subjects
 export const getAllSubjects = async (req, res) => {
   try {
-    const subjects = await Subject.find().populate('material_ids');
+    const subjects = await Subject.find().populate('materials');
     res.status(200).json(subjects); // Return subjects with a 200 status
   } catch (error) {
     console.error(error);
