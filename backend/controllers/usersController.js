@@ -53,30 +53,22 @@ export const getUser = async (req, res) => {
 
 export const signUpUser = async (req, res) => {
     try {
-        const {username, password, confirmPassword, isAdmin, groupIds, email} = req.body
+        const {username, password, confirmPassword, isAdmin, email, phoneNumber, schoolClass, institution, educationLevel, collegeDegree, customCollegeDegree} = req.body
 
         if (!isValidEmail(email)) {
             return res.status(400).json({ message: 'Invalid email format' });
         }
-        // if group is one
-        // let group = null
-        // if (!isAdmin) {
-        //     group = await Group.findById(groupId)
-        //     if (!group) {
-        //         return res.status(404).json({ message: 'Group not found' })
+
+        // let groups = [];
+        // if (!isAdmin || isAdmin == null) {
+        //     if(groupIds && Array.isArray(groupIds)){
+        //         // Fetch groups only if the user is not an admin
+        //         groups = await Group.find({ _id: { $in: groupIds } }); // Find all groups by IDs
+        //         if (groups.length !== groupIds.length) {
+        //             return res.status(404).json({ message: 'One or more groups not found' });
+        //         }
         //     }
         // }
-
-        let groups = [];
-        if (!isAdmin || isAdmin == null) {
-            if(groupIds && Array.isArray(groupIds)){
-                // Fetch groups only if the user is not an admin
-                groups = await Group.find({ _id: { $in: groupIds } }); // Find all groups by IDs
-                if (groups.length !== groupIds.length) {
-                    return res.status(404).json({ message: 'One or more groups not found' });
-                }
-            }
-        }
 
         // confirm passowrd mismatch
         if(password!==confirmPassword){
@@ -94,7 +86,7 @@ export const signUpUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10)
     const hashedPassword = await bcrypt.hash(password, salt)
 
-    const newUser = new User({username, email, password: hashedPassword, isAdmin, groups: isAdmin ? [] : groups.map(group => group._id)})
+    const newUser = new User({username, email, password: hashedPassword, isAdmin, phoneNumber, schoolClass, institution, educationLevel, collegeDegree, customCollegeDegree})
     await newUser.save()
 
     const populatedUser = await User.findById(newUser._id).populate('groups')
