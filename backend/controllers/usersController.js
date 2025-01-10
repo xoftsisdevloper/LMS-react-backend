@@ -323,3 +323,19 @@ function isValidEmail(email) {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic regex for email validation
     return regex.test(email);
 };
+
+export const getUserEnums = (req, res) => {
+    try {
+        const educationLevels = User.schema.path('educationLevel').enumValues;
+        const schoolClasses = User.schema.path('schoolClass').enumValues;
+        const collegeDegrees = User.schema.path('collegeDegree').enumValues;
+
+        res.status(200).json({
+            educationLevels,
+            schoolClasses,
+            collegeDegrees,
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
