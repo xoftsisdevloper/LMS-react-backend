@@ -272,7 +272,19 @@ export const removeGroupsFromUser = async (req, res) => {
 
 export const updateUser = async (req, res) => {
     const userId = req.params.id; // Get the user ID from the route parameter
-    const { username, email, password, isAdmin, groups, profilePicture, role } = req.body;
+    const {
+        username,
+        email,
+        password,
+        confirmPassword,
+        isAdmin,
+        phoneNumber,
+        schoolClass,
+        institution,
+        educationLevel,
+        collegeDegree,
+        customCollegeDegree
+    } = req.body;
 
     try {
         // Find the user by ID
@@ -282,14 +294,35 @@ export const updateUser = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Update user fields if provided in the request body
+        // Check if the new email is already taken by another user
+        if (email && email !== user.email) {
+            if (!isValidEmail(email)) {
+                return res.status(400).json({ message: 'Invalid email format' });
+            }
+            const existingUser = await User.findOne({ email });
+            if (existingUser) {
+                return res.status(400).json({ message: 'Email already in use' });
+            }
+            user.email = email.toLowerCase(); // Ensure email is lowercase
+        }
+
+        // Check for password update and confirm match
+        if (password) {
+            if (password !== confirmPassword) {
+                return res.status(400).json({ message: 'Passwords do not match' });
+            }
+            user.password = await bcrypt.hash(password, 10); // Hash the new password
+        }
+
+        // Update other user fields if provided
         if (username) user.username = username;
-        if (email) user.email = email.toLowerCase(); // Ensure email is lowercase
-        if (password) user.password = await bcrypt.hash(password, 10); // Hash the password if provided
         if (typeof isAdmin === 'boolean') user.isAdmin = isAdmin; // Ensure isAdmin is a boolean
-        if (Array.isArray(groups)) user.groups = groups; // Ensure groups is an array
-        if (profilePicture) user.profilePicture = profilePicture;
-        if (role) user.role = role;
+        if (phoneNumber) user.phoneNumber = phoneNumber;
+        if (schoolClass) user.schoolClass = schoolClass;
+        if (institution) user.institution = institution;
+        if (educationLevel) user.educationLevel = educationLevel;
+        if (collegeDegree) user.collegeDegree = collegeDegree;
+        if (customCollegeDegree) user.customCollegeDegree = customCollegeDegree;
 
         // Save the updated user
         await user.save();
@@ -299,6 +332,7 @@ export const updateUser = async (req, res) => {
         return res.status(500).json({ error: error.message });
     }
 };
+
 
 export const getUserGroups = async (req, res) => {
     const userId = req.params.id; // Get the user ID from the URL parameter
@@ -318,24 +352,8 @@ export const getUserGroups = async (req, res) => {
     }
 };
 
-
 function isValidEmail(email) {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic regex for email validation
     return regex.test(email);
 };
 
-export const getUserEnums = (req, res) => {
-    try {
-        const educationLevels = User.schema.path('educationLevel').enumValues;
-        const schoolClasses = User.schema.path('schoolClass').enumValues;
-        const collegeDegrees = User.schema.path('collegeDegree').enumValues;
-
-        res.status(200).json({
-            educationLevels,
-            schoolClasses,
-            collegeDegrees,
-        });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
