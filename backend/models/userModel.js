@@ -36,7 +36,7 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['student', 'instructor', 'admin'],
+      enum: ['student', 'instructor', 'admin', 'teacher', 'coordinator'],
       default: 'student',
     },
     lastLogin: {
@@ -71,6 +71,19 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    experience: {
+      type: Number,
+      default: null,
+    },
+    expertise: {
+      type: String, 
+      default: null,
+    },
+    courses: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Course',
+      default: []
+    }],
   },
   { timestamps: true }
 );

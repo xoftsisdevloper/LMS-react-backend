@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import Course from '../models/courseModel.js';
 import Material from '../models/meterialModel.js';
 import Subject from '../models/subjectModel.js';
-
+import User from '../models/userModel.js';
 // Get all courses
 export const getAllCourses = async (req, res) => {
   try {
@@ -12,6 +12,12 @@ export const getAllCourses = async (req, res) => {
       populate: {
         path: 'materials',
         model: 'Material'
+      }
+    }).populate({
+      path: 'joinRequests',
+      populate: {
+        path: 'user',
+        model: 'User'
       }
     });
     res.status(200).json(courses);
@@ -24,7 +30,9 @@ export const getAllCourses = async (req, res) => {
 // Create a course
 export const createCourse = async (req, res) => {
   try {
+    console.log(req.body );
     const newCourse = new Course(req.body);
+    console.log(newCourse);
     await newCourse.save();
     res.status(201).json({ message: 'Course created successfully', course: newCourse });
   } catch (error) {
@@ -209,3 +217,125 @@ export const updateCourseProgress = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 }
+
+export const getCoursesByType = async (req, res) => {
+  try {
+    const { type } = req.params;
+
+    const allowedTypes = ['general', 'academic', 'school', 'college', 'institutional', 'free'];
+    if (!allowedTypes.includes(type)) {
+      return res.status(400).json({ message: 'Invalid course type' });
+    }
+
+    const courses = await Course.find({ course_type: type }).populate({
+      path: 'subjects',
+      populate: {
+        path: 'materials',
+        model: 'Material'
+      }
+    });
+
+    res.status(200).json(courses);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error fetching courses by type', details: error.message });
+  }
+};
+
+export const getCourseByJoinCode = async (req, res) => {
+  try {
+    const { joinCode } = req.params;
+
+    const course = await Course.findOne({ join_code: joinCode }).populate({
+      path: 'subjects',
+      populate: {
+        path: 'materials',
+        model: 'Material'
+      }
+    });
+
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    res.status(200).json(course);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error fetching course by join code', details: error.message });
+  }
+};
+
+export const requestCourseJoin = async (req, res) => {
+
+  try {
+    const { joinCode, userId } = req.body; // Prefer keeping both in body
+    if (!joinCode || !userId) {
+      return res.status(400).json({ message: 'Join code and userId are required' });
+    }
+
+    const course = await Course.findOne({ join_code: joinCode });
+      if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    const alreadyRequested = course.joinRequests.some(
+      (joinReq) => joinReq.user.toString() === userId
+    );
+
+    if (alreadyRequested) {
+      return res.status(400).json({ message: 'You have already requested to join this course', status: 'already_requested' });
+    }
+
+    course.joinRequests.push({ user: userId });
+    await course.save();
+
+    res.status(200).json({ message: 'Join request submitted successfully', status: 'requested' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error requesting course join', error: error.message });
+  }
+};
+
+export const getJoinRequestsForCourse = async (req, res) => {
+  try {
+    const course = await Course.findById(req.params.id)
+      .populate('joinRequests.user', 'username email role');
+
+    if (!course) return res.status(404).json({ message: 'Course not found' });
+
+    // Optional: Only allow creator/admin to view
+    if (req.user.id !== course.creator?.toString() && !req.user.isAdmin) {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
+
+    res.status(200).json({ joinRequests: course.joinRequests });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching join requests', error });
+  }
+};
+
+export const handleJoinRequest = async (req, res) => {
+  try {
+    const { courseId, userId, action } = req.body;
+
+    const course = await Course.findById(courseId);
+    if (!course) return res.status(404).json({ message: 'Course not found' });
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const request = course.joinRequests.find((r) => r.user.toString() === userId);
+    if (!request) return res.status(404).json({ message: 'Join request not found' });
+
+    if (!['approved', 'rejected'].includes(action)) {
+      return res.status(400).json({ message: 'Invalid action' });
+    }
+
+    request.status = action;
+    await course.save();
+
+    res.status(200).json({ message: `Request ${action} successfully` });
+  } catch (error) {
+    res.status(500).json({ message: 'Error handling request', error });
+  }
+};

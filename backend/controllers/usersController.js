@@ -4,56 +4,63 @@ import mongoose from 'mongoose'
 import User from '../models/userModel.js'
 import Group from '../models/groupModel.js'
 
-export const saveUsers = async(req, res)=>  {
-   
-    try{
+export const saveUsers = async (req, res) => {
+
+    try {
         const data = {
-            users: [{username: 'John Doe', email: 'john@example.com'}, {username: 'Jane Doe', email: 'jane@example.com'}]
+            users: [{ username: 'John Doe', email: 'john@example.com' }, { username: 'Jane Doe', email: 'jane@example.com' }]
         }
 
         const savedUsers = await Promise.all(data.users.map(userData => {
-        const user = new User(userData)
-        return user.save()
-    }))
-    res.status(201).json(savedUsers)
-    console.log(savedUsers)
-    }catch(error){
-        res.status(500).json({message: error.message})
-     }
+            const user = new User(userData)
+            return user.save()
+        }))
+        res.status(201).json(savedUsers)
+        console.log(savedUsers)
+    } catch (error) {
+        res.status(500).json({ message: error.message })
+    }
 }
 
-export const getUsers = async(req, res) => {
+export const getUsers = async (req, res) => {
     try {
         const users = await User.find({})
         res.json(users)
         console.log(req.user)
     }
-    catch(error) {
-        res.status(500).json({message: error.message})
+    catch (error) {
+        res.status(500).json({ message: error.message })
     }
 }
 
 export const getUser = async (req, res) => {
     try {
-      
-      const userId = req.params.id;
-      const user = await User.findById(userId);
-  
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-  
-      return res.status(200).json(user);
+
+        const userId = req.params.id;
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        return res.status(200).json(user);
     } catch (error) {
-      console.error(error); 
-      return res.status(500).json({ message: 'Error fetching user', error: error.message });
+        console.error(error);
+        return res.status(500).json({ message: 'Error fetching user', error: error.message });
     }
-  };
-  
+};
+
 
 export const signUpUser = async (req, res) => {
     try {
-        const {username, password, confirmPassword, isAdmin, email, phoneNumber, schoolClass, institution, educationLevel, collegeDegree, customCollegeDegree} = req.body
+
+        const {
+            username, password, confirmPassword, isAdmin, email, phoneNumber, schoolClass, institution,
+            educationLevel, collegeDegree, customCollegeDegree, experience, expertise, profilePicture, preferences
+        } = req.body;
+
+        console.log(username);
+        
 
         if (!isValidEmail(email)) {
             return res.status(400).json({ message: 'Invalid email format' });
@@ -71,31 +78,31 @@ export const signUpUser = async (req, res) => {
         // }
 
         // confirm passowrd mismatch
-        if(password!==confirmPassword){
-            return res.status(400).json({message: 'Passwords do not match'})
+        if (password !== confirmPassword) {
+            return res.status(400).json({ message: 'Passwords do not match' })
         }
 
-    // user already exists
-    const user = await User.findOne({ $or: [{ username }, { email }] })
-    if(user){
-        return res.status(400).json({message: 'User already exists'})
-    }
+        // user already exists
+        const user = await User.findOne({ $or: [{ username }, { email }] })
+        if (user) {
+            return res.status(400).json({ message: 'User already exists' })
+        }
 
 
-    // hash the password
-    const salt = await bcrypt.genSalt(10)
-    const hashedPassword = await bcrypt.hash(password, salt)
+        // hash the password
+        const salt = await bcrypt.genSalt(10)
+        const hashedPassword = await bcrypt.hash(password, salt)
 
-    const newUser = new User({username, email, password: hashedPassword, isAdmin, phoneNumber, schoolClass, institution, educationLevel, collegeDegree, customCollegeDegree})
-    await newUser.save()
+        const newUser = new User({ username, email, password: hashedPassword, isAdmin, phoneNumber, schoolClass, institution, educationLevel, collegeDegree, customCollegeDegree, experience, expertise, profilePicture, preferences })
+        await newUser.save()
 
-    const populatedUser = await User.findById(newUser._id).populate('groups')
+        const populatedUser = await User.findById(newUser._id).populate('groups')
 
-    if(newUser){
-        generatedTokenAndCookie(newUser, res)
-        return res.status(201).json({message: 'User created successfully', user: populatedUser}
-        )
-    }
+        if (newUser) {
+            generatedTokenAndCookie(newUser, res)
+            return res.status(201).json({ message: 'User created successfully', user: populatedUser }
+            )
+        }
 
     } catch (error) {
         return res.status(500).json({ error: error.message });
@@ -110,27 +117,27 @@ export const signInUser = async (req, res) => {
             $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }]
         });
 
-        if(!user){
-            return res.status(401).json({message: 'User not found'})
+        if (!user) {
+            return res.status(401).json({ message: 'User not found' })
         }
         const isMatch = await bcrypt.compare(password, user.password)
 
-        if(!isMatch){
-            return res.status(401).json({message: 'Incorrect password'})
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Incorrect password' })
         }
 
         generatedTokenAndCookie(user, res)
-        return res.status(200).json({message: 'User logged in successfully', user})
+        return res.status(200).json({ message: 'User logged in successfully', user, success: true })
     } catch (error) {
         console.log(error)
-        return res.status(500).json({error, message: 'Failed to login user'})
+        return res.status(500).json({ error, message: 'Failed to login user' })
     }
 }
 
 export const signOutUser = async (req, res) => {
     try {
         res.clearCookie('jwt')
-        return res.status(200).json({message: 'User logged out successfully'})
+        return res.status(200).json({ message: 'User logged out successfully', success: true })
     } catch (error) {
         res.status(500).json(error)
     }
@@ -139,12 +146,12 @@ export const signOutUser = async (req, res) => {
 export const destroyAll = async (req, res) => {
 
     try {
-        if(await User.deleteMany({})){
-            return res.status(200).json({message: 'All users deleted'})
+        if (await User.deleteMany({})) {
+            return res.status(200).json({ message: 'All users deleted' })
         }
     } catch (error) {
         console.log(error)
-        return res.status(500).json({error, message: 'Failed to delete users'})
+        return res.status(500).json({ error, message: 'Failed to delete users' })
     }
 }
 
@@ -154,22 +161,22 @@ export const destroyByUserNameOrId = async (req, res) => {
         const id = req.params.id
         let user
 
-        if(mongoose.Types.ObjectId.isValid(id)){
-             user = await User.findById(id)
+        if (mongoose.Types.ObjectId.isValid(id)) {
+            user = await User.findById(id)
         }
 
-         user = await User.findOne({username: id})
+        user = await User.findOne({ username: id })
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' })
         }
 
-        if(await User.deleteOne({_id: user._id})){
+        if (await User.deleteOne({ _id: user._id })) {
             return res.status(200).json({ message: 'User deleted successfully' })
         }
 
     } catch (error) {
-        res.status(404).json({ error: error})
+        res.status(404).json({ error: error })
     }
 }
 
@@ -177,7 +184,7 @@ export const userCourses = async (req, res) => {
     try {
         // Find the user by their ID
         const user = await User.findById(req.params.id).populate('groups');
-        
+
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -283,7 +290,8 @@ export const updateUser = async (req, res) => {
         institution,
         educationLevel,
         collegeDegree,
-        customCollegeDegree
+        customCollegeDegree,
+        role
     } = req.body;
 
     try {
@@ -323,6 +331,7 @@ export const updateUser = async (req, res) => {
         if (educationLevel) user.educationLevel = educationLevel;
         if (collegeDegree) user.collegeDegree = collegeDegree;
         if (customCollegeDegree) user.customCollegeDegree = customCollegeDegree;
+        if (role) user.role = role; // Update role if provided
 
         // Save the updated user
         await user.save();
@@ -354,6 +363,8 @@ export const getUserGroups = async (req, res) => {
 
 function isValidEmail(email) {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic regex for email validation
+    console.log(email);
+    
     return regex.test(email);
 };
 
