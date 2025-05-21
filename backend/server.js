@@ -16,6 +16,8 @@ import ResultRoutes from './routes/testSubmissionRoutes.js'
 import LeaderboardRoutes from './routes/leaderBoardRoutes.js'
 import TestSubmission from './routes/testSubmissionRoutes.js'
 import authenticate from './middleware/authenticate.js'
+import InstitutionRoutes from './routes/institutionRoutes.js'
+
 import cors from 'cors'
 const app = express()
 app.use(express.json())
@@ -36,6 +38,7 @@ app.use('/api/tests', TestRoutes)
 app.use('/api/result', ResultRoutes)
 app.use('/api/testSubmission', TestSubmission)
 app.use('/api/leaderboard/', LeaderboardRoutes)
+app.use('/api/institution/', InstitutionRoutes)
 
 app.get('*', (req, res) => {
   res.status(404).json({error: 'The url is incorrect'})

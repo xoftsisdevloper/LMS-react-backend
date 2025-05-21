@@ -20,7 +20,7 @@ export const saveUsers = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message })
     }
-}
+};
 
 export const getUsers = async (req, res) => {
     try {
@@ -31,7 +31,7 @@ export const getUsers = async (req, res) => {
     catch (error) {
         res.status(500).json({ message: error.message })
     }
-}
+};
 
 export const getUser = async (req, res) => {
     try {
@@ -50,17 +50,15 @@ export const getUser = async (req, res) => {
     }
 };
 
-
 export const signUpUser = async (req, res) => {
     try {
 
         const {
-            username, password, confirmPassword, isAdmin, email, phoneNumber, schoolClass, institution,
-            educationLevel, collegeDegree, customCollegeDegree, experience, expertise, profilePicture, preferences
+            username, password, confirmPassword, isAdmin, email, phoneNumber, schoolClass, institution, otherInstitution,
+            educationLevel, collegeDegree, customCollegeDegree, experience, expertise, profilePicture, preferences, role
         } = req.body;
 
         console.log(username);
-        
 
         if (!isValidEmail(email)) {
             return res.status(400).json({ message: 'Invalid email format' });
@@ -93,7 +91,7 @@ export const signUpUser = async (req, res) => {
         const salt = await bcrypt.genSalt(10)
         const hashedPassword = await bcrypt.hash(password, salt)
 
-        const newUser = new User({ username, email, password: hashedPassword, isAdmin, phoneNumber, schoolClass, institution, educationLevel, collegeDegree, customCollegeDegree, experience, expertise, profilePicture, preferences })
+        const newUser = new User({ username, email, password: hashedPassword, isAdmin, phoneNumber, schoolClass, institution, educationLevel, collegeDegree, customCollegeDegree, experience, expertise, profilePicture, preferences, role: role })
         await newUser.save()
 
         const populatedUser = await User.findById(newUser._id).populate('groups')
@@ -105,9 +103,10 @@ export const signUpUser = async (req, res) => {
         }
 
     } catch (error) {
+        console.log("the error", error)
         return res.status(500).json({ error: error.message });
     }
-}
+};
 
 export const signInUser = async (req, res) => {
     try {
@@ -132,7 +131,7 @@ export const signInUser = async (req, res) => {
         console.log(error)
         return res.status(500).json({ error, message: 'Failed to login user' })
     }
-}
+};
 
 export const signOutUser = async (req, res) => {
     try {
@@ -141,7 +140,7 @@ export const signOutUser = async (req, res) => {
     } catch (error) {
         res.status(500).json(error)
     }
-}
+};
 
 export const destroyAll = async (req, res) => {
 
@@ -153,7 +152,7 @@ export const destroyAll = async (req, res) => {
         console.log(error)
         return res.status(500).json({ error, message: 'Failed to delete users' })
     }
-}
+};
 
 export const destroyByUserNameOrId = async (req, res) => {
 
@@ -178,7 +177,7 @@ export const destroyByUserNameOrId = async (req, res) => {
     } catch (error) {
         res.status(404).json({ error: error })
     }
-}
+};
 
 export const userCourses = async (req, res) => {
     try {
@@ -206,7 +205,7 @@ export const userCourses = async (req, res) => {
         console.error(error);
         res.status(500).json({ error, message: 'Server error' });
     }
-}
+};
 
 export const assignGroupsToUser = async (req, res) => {
     try {
@@ -342,7 +341,6 @@ export const updateUser = async (req, res) => {
     }
 };
 
-
 export const getUserGroups = async (req, res) => {
     const userId = req.params.id; // Get the user ID from the URL parameter
 
@@ -364,7 +362,119 @@ export const getUserGroups = async (req, res) => {
 function isValidEmail(email) {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic regex for email validation
     console.log(email);
-    
+
     return regex.test(email);
+};
+
+export const toggleUserActiveStatus = async (req, res) => {
+    const { id } = req.params; // Get the user ID from the route parameter
+    const { isActive } = req.body; // Get the isActive value from the request body
+
+    try {
+        // Validate isActive input
+        if (typeof isActive !== 'boolean') {
+            return res.status(400).json({ message: 'isActive must be a boolean value' });
+        }
+
+        // Find the user by ID
+        const user = await User.findById(id);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Update the isActive status
+        user.isActive = isActive;
+        await user.save();
+
+        return res.status(200).json({ message: 'User active status updated successfully', user });
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+export const getUserByRole = async (req, res) => {
+    try {
+        const { role } = req.params;
+
+        if (!role) {
+            return res.status(400).json({ message: 'Role parameter is required' });
+        }
+
+        // Find users by role (case-insensitive)
+        const users = await User.find({ role: { $regex: new RegExp(`^${role}$`, 'i') } });
+
+        if (!users || users.length === 0) {
+            return res.status(404).json({ message: 'No users found with the specified role' });
+        }
+
+        return res.status(200).json(users);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Error fetching users by role', error: error.message });
+    }
+};
+
+export const getNotApprovedTeacherForInstitution = async (req, res) => {
+    try {
+        const { ins_id } = req.params;
+
+        // Assuming "isApproved" is a boolean field in the User model
+        const users = await User.find({
+            institution: ins_id,
+            role: 'teacher',
+        }).populate('approved_by');
+
+        console.log("Fetched non-approved teachers for institution:", ins_id);
+
+        return res.status(200).json(users);
+    } catch (error) {
+        console.error("Error fetching non-approved teachers:", error);
+        return res.status(500).json({
+            message: 'Error fetching users by Teacher for institution',
+            error: error.message
+        });
+    }
+};
+
+export const ApprovingTeacher = async (req, res) => {
+    try {
+        const { user_id } = req.params;
+        const { approver_id, status } = req.body; // The ID of the user who is approving
+
+        // Validate inputs
+        if (!mongoose.Types.ObjectId.isValid(user_id) || !mongoose.Types.ObjectId.isValid(approver_id)) {
+            return res.status(400).json({ message: "Invalid user or approver ID" });
+        }
+
+        // Find the user to approve
+        const user = await User.findById(user_id);
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Ensure the user is a teacher
+        if (user.role !== 'teacher') {
+            return res.status(400).json({ message: "Only users with role 'teacher' can be approved" });
+        }
+
+        // Update approval status and approver
+        user.isApproved = status;
+        user.approved_by = approver_id;
+
+        await user.save();
+
+        return res.status(200).json({
+            message: "Teacher approved successfully",
+            user
+        });
+    } catch (error) {
+        console.error("Error approving teacher:", error);
+        return res.status(500).json({
+            message: 'Error approving teacher',
+            error: error.message
+        });
+    }
 };
 

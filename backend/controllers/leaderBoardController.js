@@ -62,7 +62,7 @@ export const getLeaderboard = async (req, res) => {
     if (lessonId) query.lesson = lessonId;
 
     const leaderboard = await Leaderboard.findOne(query)
-      .populate("rankings.user", "name email") // populate user info
+      .populate("rankings.user", "username email") // populate user info
       .populate("test", "test_name")
       .populate("subject", "title")
       .populate("lesson", "name");

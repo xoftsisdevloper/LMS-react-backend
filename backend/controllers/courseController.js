@@ -19,6 +19,12 @@ export const getAllCourses = async (req, res) => {
         path: 'user',
         model: 'User'
       }
+    }).populate({
+      path: 'course_institution',
+      populate: {
+        path: 'institution',
+        model: 'Institution'
+      }
     });
     res.status(200).json(courses);
   } catch (error) {
@@ -30,7 +36,7 @@ export const getAllCourses = async (req, res) => {
 // Create a course
 export const createCourse = async (req, res) => {
   try {
-    console.log(req.body );
+    console.log(req.body);
     const newCourse = new Course(req.body);
     console.log(newCourse);
     await newCourse.save();
@@ -96,7 +102,6 @@ export const deleteCourse = async (req, res) => {
   }
 };
 
-
 // Get details of a specific course
 export const getCourseDetails = async (req, res) => {
   try {
@@ -105,6 +110,18 @@ export const getCourseDetails = async (req, res) => {
       populate: {
         path: 'materials',
         model: 'Material'
+      }
+    }).populate({
+      path: 'joinRequests',
+      populate: {
+        path: 'user',
+        model: 'User'
+      }
+    }).populate({
+      path: 'course_institution',
+      populate: {
+        path: 'institution',
+        model: 'Institution'
       }
     });
     if (!course) {
@@ -194,7 +211,7 @@ export const updateCourseProgress = async (req, res) => {
     }
 
     const userProgress = course.progress.find(p => p.user.toString() === req.user.id);
-    
+
     // If user progress doesn't exist, create it
     if (!userProgress) {
       const newProgress = {
@@ -233,6 +250,12 @@ export const getCoursesByType = async (req, res) => {
         path: 'materials',
         model: 'Material'
       }
+    }).populate({
+      path: 'course_institution',
+      populate: {
+        path: 'institution',
+        model: 'Institution'
+      }
     });
 
     res.status(200).json(courses);
@@ -251,6 +274,12 @@ export const getCourseByJoinCode = async (req, res) => {
       populate: {
         path: 'materials',
         model: 'Material'
+      }
+    }).populate({
+      path: 'course_institution',
+      populate: {
+        path: 'institution',
+        model: 'Institution'
       }
     });
 
@@ -274,13 +303,19 @@ export const requestCourseJoin = async (req, res) => {
     }
 
     const course = await Course.findOne({ join_code: joinCode });
-      if (!course) {
+    if (!course) {
       return res.status(404).json({ message: 'Course not found' });
     }
 
     const alreadyRequested = course.joinRequests.some(
       (joinReq) => joinReq.user.toString() === userId
     );
+
+    const user = User.findById(userId);
+
+    if (user?.institution.institution_id !== course.course_institution.institution_id) {
+      return res.status(400).json({ message: 'You are not in this institution', status: 'already_requested' });
+    }
 
     if (alreadyRequested) {
       return res.status(400).json({ message: 'You have already requested to join this course', status: 'already_requested' });
@@ -299,7 +334,13 @@ export const requestCourseJoin = async (req, res) => {
 export const getJoinRequestsForCourse = async (req, res) => {
   try {
     const course = await Course.findById(req.params.id)
-      .populate('joinRequests.user', 'username email role');
+      .populate('joinRequests.user', 'username email role').populate({
+        path: 'course_institution',
+        populate: {
+          path: 'institution',
+          model: 'Institution'
+        }
+      });
 
     if (!course) return res.status(404).json({ message: 'Course not found' });
 
@@ -339,3 +380,23 @@ export const handleJoinRequest = async (req, res) => {
     res.status(500).json({ message: 'Error handling request', error });
   }
 };
+
+export const getAllJoinRequests = async (req, res) => {
+  try {
+    const allCourses = await Course.find()
+      .populate('joinRequests.user', 'name email'); // Convert documents to plain JS objects
+
+    const allJoinRequests = allCourses.flatMap(course =>
+      course.joinRequests.map(req => ({
+        course: course._id,
+        user: req.user,
+        status: req.status,
+        requestedAt: req.requestedAt
+      }))
+    );
+
+    res.status(200).json(allJoinRequests); // Send the response
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching join requests', error }); // Handle errors
+  }
+}; 

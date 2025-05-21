@@ -25,6 +25,10 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    isApproved: {
+      type: Boolean,
+      default: null, // Initial default is null, logic handled below
+    },
     groups: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Group',
@@ -48,8 +52,11 @@ const userSchema = new mongoose.Schema(
       default: {},
     },
     institution: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Institution',
+    },
+    otherInstitution: {
       type: String,
-      default: null,
     },
     phoneNumber: { 
       type: Number,
@@ -84,8 +91,25 @@ const userSchema = new mongoose.Schema(
       ref: 'Course',
       default: []
     }],
+
+    approved_by: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }
   },
   { timestamps: true }
 );
+
+// 🧠 Set `isApproved` based on role before saving
+userSchema.pre('save', function (next) {
+  if (this.isApproved === null) { // Only apply default if not explicitly set
+    if (this.role === 'teacher') {
+      this.isApproved = false;
+    } else {
+      this.isApproved = true;
+    }
+  }
+  next();
+});
 
 export default mongoose.model("User", userSchema);

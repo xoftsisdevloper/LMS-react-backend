@@ -12,7 +12,7 @@ router.post('/create-course', async (req, res) => {
 
   try {
     const courseData = req.body; 
-
+    console.log(courseData)
   
     if (!courseData.name || !courseData.description || !courseData.duration || !courseData.imageUrl) {
       console.log('Course data is missing:', courseData);
@@ -49,6 +49,7 @@ router.post('/create-course', async (req, res) => {
       imageUrl: courseData.imageUrl, 
       join_code: courseData.join_code || null,
       course_type: courseData.course_type || 'general',
+      created_by: courseData.created_by || 'admin',
       subjects: [],
     });
 

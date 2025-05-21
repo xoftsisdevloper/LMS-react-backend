@@ -1,5 +1,5 @@
 import express, { Router } from 'express'
-import {assignGroupsToUser, destroyAll, destroyByUserNameOrId, getUser,  getUserGroups, getUsers, removeGroupsFromUser, saveUsers, signInUser, signOutUser, signUpUser, updateUser, userCourses} from '../controllers/usersController.js'
+import {ApprovingTeacher, assignGroupsToUser, destroyAll, destroyByUserNameOrId, getNotApprovedTeacherForInstitution, getUser,  getUserByRole,  getUserGroups, getUsers, removeGroupsFromUser, saveUsers, signInUser, signOutUser, signUpUser, toggleUserActiveStatus, updateUser, userCourses} from '../controllers/usersController.js'
 import authenticate from '../middleware/authenticate.js'
 import { AddUserCourse, getUserCourses } from '../controllers/userCoursesController.js'
 
@@ -37,5 +37,13 @@ router.get('/:id/groups', getUserGroups);
 router.get('/:userId/courses', getUserCourses);
 
 router.post('/add-course/:userId', AddUserCourse);
+
+router.put('/update-userStatus/:id', toggleUserActiveStatus);
+
+router.get('/role/:role', getUserByRole);
+
+router.get('/institution/:ins_id', getNotApprovedTeacherForInstitution);
+
+router.put('/approve-teacher/:user_id', ApprovingTeacher);
 
 export default router
