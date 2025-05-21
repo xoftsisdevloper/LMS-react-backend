@@ -8,7 +8,7 @@ const router = express.Router();
 router.put('/update-course/:courseId', async (req, res) => {
   const { courseId } = req.params;
   const courseData = req.body;
-  console.log(courseDatabase)
+  console.log(courseData)
 
   const session = await mongoose.startSession();
   session.startTransaction();

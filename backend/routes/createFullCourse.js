@@ -12,9 +12,11 @@ router.post('/create-course', async (req, res) => {
 
   try {
     const courseData = req.body; 
-
+    console.log(courseData)
   
     if (!courseData.name || !courseData.description || !courseData.duration || !courseData.imageUrl) {
+      console.log('Course data is missing:', courseData);
+      
       return res.status(400).json({ message: 'Course name, description, duration, and image URL are required.' });
     }
 
@@ -45,6 +47,9 @@ router.post('/create-course', async (req, res) => {
       description: courseData.description,
       duration: courseData.duration,
       imageUrl: courseData.imageUrl, 
+      join_code: courseData.join_code || null,
+      course_type: courseData.course_type || 'general',
+      created_by: courseData.created_by || 'admin',
       subjects: [],
     });
 

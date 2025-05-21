@@ -33,3 +33,27 @@ export const getUserCourses = async (req, res) => {
     return res.status(500).json({ error: 'Error fetching user courses' });
   }
 };
+
+
+export const AddUserCourse = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { courseId } = req.body; 
+
+    // Find the user and add the course to their courses array
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $addToSet: { courses: courseId } },
+      { new: true, runValidators: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    return res.status(200).json({ message: 'Course added successfully', data: user });
+  } catch (error) {
+    console.error('Error adding course to user:', error);
+    return res.status(500).json({ error: 'Error adding course to user' });
+  }
+}

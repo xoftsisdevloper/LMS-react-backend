@@ -14,34 +14,62 @@ const progressSchema = new mongoose.Schema({
 });
 
 const courseSchema = new mongoose.Schema({
-    name: { 
-        type: String, 
+    name: {
+        type: String,
         required: true
     },
-    description: { 
-        type: String, 
+    description: {
+        type: String,
         required: true,
-        trim: true 
+        trim: true
     },
-    duration: { 
-        type: Number, 
+    duration: {
+        type: Number,
         required: true,
         min: 1
     },
-    status: { 
-        type: String, 
+    status: {
+        type: String,
         enum: ['active', 'inactive'],
         default: 'active'
     },
     imageUrl: {
         type: String
     },
+    course_type: {
+        type: String,
+        enum: ['general', 'academic', 'school', 'college'],
+        default: 'general',
+    },
+
+    course_institution: {
+       type: mongoose.Schema.Types.ObjectId,
+       ref: 'Institution',
+       default: null
+    },
+    
+    join_code: {
+        type: String,
+        default: null,
+    },
     subjects: [{
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: 'Subject' 
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Subject'
     }],
+    joinRequests: [{
+        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+        requestedAt: { type: Date, default: Date.now }
+    }],
+    created_by: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    },  
+
     ratings: [ratingSchema],
     progress: [progressSchema],
+
+
 }, { timestamps: true });
 
 const Course = mongoose.model('Course', courseSchema);

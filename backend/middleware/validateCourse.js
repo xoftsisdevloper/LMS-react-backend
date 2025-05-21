@@ -21,9 +21,12 @@ const validateCourseCreation = async (req, res, next) => {
   }
   // Validate the subjects
   if (subjects && Array.isArray(subjects)) {
+    
     for (const id of subjects) {
+      console.log(id);
       if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ message: `Invalid Subject ID: ${id}` });
+        
       }
     }
 
