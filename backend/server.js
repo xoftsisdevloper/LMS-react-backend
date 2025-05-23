@@ -26,7 +26,7 @@ app.use(express.json())
 app.use(cookieParser())
 app.use(cors({
   origin: '*', // Or specify your frontend origin like 'https://yourfrontend.com'
-  credentials: true
+  credentials: false
 }))
 
 // Port
