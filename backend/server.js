@@ -22,7 +22,11 @@ import cors from 'cors'
 const app = express()
 app.use(express.json())
 app.use(cookieParser())
-app.use(cors())
+const cors = require('cors');
+app.use(cors({
+  origin: '*', // Or use specific domain like 'https://yourapp.com'
+  credentials: true
+}));
 
 const PORT = process.env.PORT || 5000
 
