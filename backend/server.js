@@ -28,7 +28,7 @@ app.use(cors({
   credentials: true
 }));
 
-const PORT = process.env.PORT || 5000
+const PORT = 2000 || 5000
 
 // app.use('/users', UserRoutes)
 // app.use('/materials', authenticate, MaterialRoutes)
@@ -65,7 +65,7 @@ app.get('*', (req, res) => {
 // });
 
 
-app.listen(PORT, '0.0.0.0' ,() => {
+app.listen(2000, '0.0.0.0' ,() => {
   console.log(chalk.magenta(`http://localhost:${PORT}`))
   mangoDb()
 })
