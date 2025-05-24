@@ -24,10 +24,7 @@ const app = express()
 // Middleware
 app.use(express.json())
 app.use(cookieParser())
-app.use(cors({
-  origin: '*', // Or specify your frontend origin like 'https://yourfrontend.com'
-  credentials: false
-}))
+app.use(cors())
 
 // Port
 const PORT = process.env.PORT || 2000
